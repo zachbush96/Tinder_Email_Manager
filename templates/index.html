@@ -6,6 +6,25 @@
     <title>Gmail Viewer</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Background Gradient from the First Document */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, 
+                                #f0f0f0 25%, 
+                                #e0e0e0 25%, 
+                                #e0e0e0 50%, 
+                                #f0f0f0 50%, 
+                                #f0f0f0 75%, 
+                                #e0e0e0 75%, 
+                                #e0e0e0 100%);
+            background-size: 56.57px 56.57px; /* Adjust the size to match the angle */
+        } 
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="bg-white p-8 rounded-lg shadow-md text-center">
