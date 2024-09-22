@@ -41,3 +41,36 @@ This project is a Python Flask-based web application that allows users to manage
    flask run
 
 7. Open your browser and go to http://localhost:5000 to access the application.
+
+##Configuration
+Set the following environment variables:
+```SECRET_KEY: ```Your secret key for Flask session management.
+```GOOGLE_CLIENT_ID: ```Your Google OAuth client ID.
+```GOOGLE_CLIENT_SECRET: ```Your Google OAuth client secret.
+```REDIRECT_URI: ```Redirect URI configured in your Google Cloud project.
+
+##Usage
+Login: Click on the login button to authenticate with your Google account.
+View Emails: Swipe through the email cards to view your emails.
+Delete Email: Swipe left on a card or click the dislike button to delete an individual email.
+Delete All from Sender: Click the "Delete All from Sender" button to remove all emails from a particular sender.
+
+##To-Do List
+ - [ ] Pull images from email HTML body and display on the front-end card.
+ - [ ] Add ability to read complete email from the email body within the card front-end.
+ - [ ] Pull 'unsubscribe' links from the email body.
+ - [ ] Place 'Unsubscribe' button on the card.
+ - [ ] Add the ability to 'Erase All' from a particular sender's email address.
+ - [ ] Speed up the front-end with lazy loading and prefetching.
+ - [ ] Implement server-side rendering for improved performance.
+ - [ ] Add better icons to the front-end.
+ - [ ] Display inbox type and other relevant tags on the card.
+
+##Dependencies
+Flask
+Authlib
+Google API Python Client
+BeautifulSoup
+Other dependencies listed in requirements.txt
+
+
