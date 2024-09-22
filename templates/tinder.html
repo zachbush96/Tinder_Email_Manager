@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swipe Cards</title>
+    <style>
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+    font-family: Arial, sans-serif; /* Add a clean font */
+		overflow: hidden; /* Disable scrolling */
+		background: linear-gradient(135deg, 
+                                #f0f0f0 25%, 
+                                #e0e0e0 25%, 
+                                #e0e0e0 50%, 
+                                #f0f0f0 50%, 
+                                #f0f0f0 75%, 
+                                #e0e0e0 75%, 
+                                #e0e0e0 100%);
+    background-size: 56.57px 56.57px; /* Adjust the size to match the angle */
+}
+@media (max-width: 768px) {
+    body {
+        height: 75vh; /* Set height to 75vh for mobile devices */
+				padding: 10px 10px 10px 10px; /* Add padding to the body */
+    }
+}
+
+.card-container {
+    position: relative;
+    width: 320px;
+    height: 600px; /* Increase height for additional content */
+    perspective: 1000px;
+		background-color: rgba(255, 255, 255, 0.8); /* Slight background for contrast */
+    border-radius: 26px; /* Optional rounded corners */
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    /*padding: 20px; /* Optional padding */
+}
+
+.card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 26px; /* Softer corners */
+    background-color: white;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15); /* Softer shadow */
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Hide overflow for rounded corners */
+}
+
+.card img {
+    loading: "lazy"; /* Lazy loading for images */"
+		width: 90%; /* Reduced width for padding */
+    height: 200px; /* Adjust image height */
+    margin: 5px auto 0 auto; /* Center the image with padding */
+    border-radius: 12px; /* Rounded corners */
+		object-fit: contain;
+		padding: 16px 16px 0 16px; /* Add padding to the image */
+}
+
+.heading {
+    font-size: 22px;
+    font-weight: bold;
+    padding: 16px;
+    text-align: center; /* Center align heading */
+}
+
+.bio {
+    font-size: 16px;
+    padding: 0 16px 16px;
+    flex-grow: 1;
+    text-align: center; /* Center align bio text */
+}
+
+.stats {
+	font-size: 14px;
+	/*padding: 0 16px 16px; */
+	text-align: center; /* Center align stats */
+	flex-grow: 1;
+}
+			
+.tags {
+    padding: 8px 16px; /* Adjust padding */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; /* Reduce gap */
+    justify-content: center; /* Center tags */
+}
+
+.tag {
+    background-color: #e0e0e0;
+    border-radius: 12px;
+    padding: 5px 12px; /* Adjust padding */
+    font-size: 14px;
+}
+
+.card-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 16px; /* Adjust bottom margin */
+}
+
+.button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px; /* Increase button width */
+    height: 60px; /* Increase button height */
+    border-radius: 50%;
+    transition: background-color 0.3s ease; /* Add hover effect */
+}
+
+.button img {
+    width: 40px; /* Increase icon size */
+    height: 40px; /* Increase icon size */
+}
+
+.button:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Light background on hover */
+}
+
+/* Container for the delete button */
+.button-container {
+    display: flex;
+    justify-content: center; /* Center the button horizontally */
+    align-items: center;
+  
+}
+
+/* CSS for the "Delete All from Server" button */
+#delete-all-button {
+    
+
+    color: red; /* Red text */
+    
+    
+    font-weight: bold; /* Bold text */
+    text-align: center; /* Center align text */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+
+
+    </style>
+</head>
+<body>
+
+<div class="card-container" id="card-container">
+    <!-- Current Card will be dynamically inserted here -->
+</div>
+
+<script>
+    const cardContainer = document.getElementById('card-container');
+    let emails = [];
+    let currentCardIndex = 0;
+    let isDragging = false;
+    let startX = 0;
+    let currentX = 0;
+
+    // Function to create a card element using email data
+		function createCard(email) {
+		    const { sender, subject, tags, id, images, count_from_sender } = email;
+		    const card = document.createElement('div');
+		    card.classList.add('card');
+		    card.setAttribute('data-email-id', id);
+		
+		    // Check if there are images, and if so, use only the first one as the card image.
+		    const imageElement = images.length > 0 ? `<img style="width:90%; border-radius=26px 26px 85px 85px" src="${images[0]}" alt="Card Image" loading="lazy">` : '';
+		
+		    card.innerHTML = `
+		        ${imageElement}
+		        <div class="heading">${sender}</div>
+		        <div class="bio">${subject}</div>
+						<div class="stats">Total Emails from Sender: ${count_from_sender}</div>
+						<div class="button-container">
+						<div class="button" id="delete-all-button">Delete All from Sender</div>
+						</div>
+		        <div class="tags">
+		            ${tags.map(tag => `<div class="tag">${tag}</div>`).join('')}
+		        </div>
+		        <div class="card-buttons">
+		            <button class="button dislike" onclick="triggerSwipe('left', '${id}')">
+		                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828665.png" alt="Dislike">
+		            </button>
+		            <button class="button like" onclick="triggerSwipe('right', '${id}')">
+		                <img src="https://cdn-icons-png.flaticon.com/512/17295/17295924.png" alt="Like">
+		            </button>
+		        </div>
+		    `;
+		    return card;
+		}
+
+		// Function to prefetch the first image of the next few cards
+		function prefetchNextImages(startIndex, count) {
+		    const endIndex = Math.min(startIndex + count, emails.length);
+		    for (let i = startIndex; i < endIndex; i++) {
+		        if (emails[i].images.length > 0) {
+		            const img = new Image();
+								// get img size , if it's 1px x 1px, dont add it to the array, else , add it
+								img.onload = () => {
+									if (img.width === 1 && img.height === 1) {
+										emails[i].images.shift(); // Remove the image if it's 1px x 1px
+									}
+								}
+								
+		            img.src = emails[i].images[0]; // Prefetch only the first image
+		        }
+		    }
+		}
+
+
+
+
+
+	
+		// Function to fetch emails from the backend (no parameters)
+		async function fetchEmails() {
+		    try {
+		        const response = await fetch('/api/emails');
+		        if (!response.ok) {
+		            throw new Error(`HTTP error! status: ${response.status}`);
+		        }
+		        const emailData = await response.json();
+		        return emailData;
+		    } catch (error) {
+		        console.error('Error fetching emails:', error);
+		        return [];
+		    }
+		}
+
+		// Function to load the next card and prefetch future cards
+		function loadNextCard() {
+				if (currentCardIndex >= emails.length) {
+						console.warn('No more emails to display.');
+						cardContainer.innerHTML = '<div class="heading" style="padding: 20px; text-align: center;">No more emails!</div>';
+						return;
+				}
+		
+				const email = emails[currentCardIndex];
+				const newCard = createCard(email);
+				cardContainer.innerHTML = ''; // Clear previous card
+				cardContainer.appendChild(newCard);
+		
+				// Prefetch the next 5 cards' first images
+				prefetchNextImages(currentCardIndex + 1, 5);
+		}
+
+    // Function to handle swipe with animation
+    async function swipeCard(direction, emailId) {
+        const currentCard = cardContainer.querySelector('.card');
+        if (!currentCard) return;
+
+        if (direction === 'left') {
+            // Delete email if swiped left
+            try {
+                const response = await fetch(`/api/emails/${emailId}`, { method: 'DELETE' });
+                if (!response.ok) {
+                    throw new Error(`Failed to delete email. Status: ${response.status}`);
+                }
+                console.log(`Email ${emailId} deleted successfully.`);
+            } catch (error) {
+                console.error(`Error deleting email: ${error}`);
+            }
+        }
+
+        // Animate the card off-screen
+        currentCard.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+        currentCard.style.transform = direction === 'left' 
+            ? 'translateX(-100vw) rotate(-30deg)' 
+            : 'translateX(100vw) rotate(30deg)';
+        currentCard.style.opacity = '0';
+
+        console.log(`Card ${currentCardIndex + 1} swiped ${direction}`);
+
+        currentCard.addEventListener('transitionend', () => {
+            currentCard.remove();
+            currentCardIndex++;
+            loadNextCard(); // Load the next card after swipe
+        }, { once: true });
+    }
+
+    // Function to handle swipe triggered by button click
+    function triggerSwipe(direction, emailId) {
+        swipeCard(direction, emailId);
+    }
+
+    // Handle drag/swipe gestures
+    function addGestureListeners() {
+        cardContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            const currentCard = cardContainer.querySelector('.card');
+            if (currentCard) {
+                currentCard.style.cursor = 'grabbing';
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            currentX = e.clientX;
+            const deltaX = currentX - startX;
+            const currentCard = cardContainer.querySelector('.card');
+            if (currentCard) {
+                currentCard.style.transition = 'none';
+                currentCard.style.transform = `translateX(${deltaX}px) rotate(${deltaX / 20}deg)`;
+            }
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            const endX = e.clientX;
+            const deltaX = endX - startX;
+            const currentCard = cardContainer.querySelector('.card');
+
+            if (currentCard) {
+                if (deltaX < -100) {
+                    swipeCard('left', currentCard.getAttribute('data-email-id'));
+                } else if (deltaX > 100) {
+                    swipeCard('right', currentCard.getAttribute('data-email-id'));
+                } else {
+                    currentCard.style.transition = 'transform 0.4s ease';
+                    currentCard.style.transform = 'translateX(0) rotate(0)';
+                    currentCard.style.cursor = 'grab';
+                }
+            }
+        });
+
+        // Touch events for mobile devices
+        cardContainer.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+            const deltaX = currentX - startX;
+            const currentCard = cardContainer.querySelector('.card');
+            if (currentCard) {
+                currentCard.style.transition = 'none';
+                currentCard.style.transform = `translateX(${deltaX}px) rotate(${deltaX / 20}deg)`;
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            const endX = e.changedTouches[0].clientX;
+            const deltaX = endX - startX;
+            const currentCard = cardContainer.querySelector('.card');
+
+            if (currentCard) {
+                if (deltaX < -100) {
+                    swipeCard('left', currentCard.getAttribute('data-email-id'));
+                } else if (deltaX > 100) {
+                    swipeCard('right', currentCard.getAttribute('data-email-id'));
+                } else {
+                    currentCard.style.transition = 'transform 0.4s ease';
+                    currentCard.style.transform = 'translateX(0) rotate(0)';
+                }
+            }
+        });
+
+        // Prevent text selection during drag
+        document.addEventListener('selectstart', (e) => {
+            if (isDragging) e.preventDefault();
+        });
+    }
+
+    // Initialize the card stack with lazy loading and prefetching
+		async function initializeCards() {
+		    const fetchedEmails = await fetchEmails();
+		    if (fetchedEmails.length === 0) {
+		        console.warn('No emails to display.');
+		        cardContainer.innerHTML = '<div class="heading" style="padding: 20px; text-align: center;">No emails available.</div>';
+		        return;
+		    }
+		
+		    // Assign tags to each email and use the extracted images
+		    emails = fetchedEmails.map((email, index) => {
+		        const tags = ['Email', 'Gmail'];
+		        if (email.is_unsubscribes) {
+		            tags.push('Unsubscribes');
+		        }
+		        return {
+		            ...email,
+		            tags,
+		            images: email.images.length > 0 ? email.images : [`https://picsum.photos/320/240?random=${index}`]
+		        };
+		    });
+		
+		    loadNextCard();
+		    addGestureListeners();
+		    prefetchNextImages(1, 5); // Prefetch the first 5 images after the first card
+		}
+
+		
+		// Event listener for delete all button within the container
+		cardContainer.addEventListener('click', async (event) => {
+		    if (event.target && event.target.id === 'delete-all-button') {
+		        try {
+		            const sender = cardContainer.querySelector('.card').querySelector('.heading').textContent;
+								const id = cardContainer.querySelector('.card').getAttribute('data-email-id');
+								triggerSwipe('left', id);
+		            const response = await fetch(`/api/emails/delete_all/${sender}`, { method: 'DELETE' });
+		            if (!response.ok) {
+		                throw new Error(`Failed to delete emails. Status: ${response.status}`);
+		            } else {
+		                console.log(`Emails from ${sender} deleted successfully.`);
+		            }
+		        } catch (error) {
+		            console.error(`Error deleting emails: ${error}`);
+		        }
+		    }
+		});
+
+	
+    // Fetch and add email cards when the page loads
+    document.addEventListener('DOMContentLoaded', initializeCards);
+</script>
+</body>
+</html>
