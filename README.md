@@ -19,3 +19,25 @@ This project is a Python Flask-based web application that allows users to manage
 2. Navigate to the project directory:
    ```bash
    cd email-manager
+
+3. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # For Windows use `venv\Scripts\activate`
+
+4. Install the dependencies:
+   ```bash
+   pip install -r requirements.txt
+
+5. Set up environment variables for Flask:
+   ```bash
+   export SECRET_KEY='your-secret-key'
+   export GOOGLE_CLIENT_ID='your-google-client-id'
+   export GOOGLE_CLIENT_SECRET='your-google-client-secret'
+   export REDIRECT_URI='your-redirect-uri'
+
+6. Run the Flask application:
+   ```bash
+   flask run
+
+7. Open your browser and go to http://localhost:5000 to access the application.
